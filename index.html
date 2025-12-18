@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工业遗产资料收藏夹</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif; }
+        body { background-color: #f8fafc; color: #334155; line-height: 1.6; padding: 20px; }
+        
+        .smooth-nav {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
+            padding: 12px 28px;
+            border-radius: 50px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            z-index: 1000;
+            display: flex;
+            gap: 30px;
+        }
+        .smooth-nav a {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .smooth-nav a:hover {
+            color: #7c3aed;
+            background: rgba(79, 70, 229, 0.05);
+        }
+        
+        .container { 
+            max-width: 900px; 
+            margin: 80px auto 40px;
+            background: white; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); 
+            overflow: hidden; 
+        }
+        
+        header { 
+            background: linear-gradient(135deg, #4f46e5, #7c3aed); 
+            color: white; 
+            padding: 60px 40px 40px; 
+            text-align: center; 
+            position: relative; 
+        }
+        
+        .header-icon { 
+            font-size: 3rem; 
+            margin-bottom: 20px; 
+            display: block; 
+        }
+        
+        h1 { 
+            font-size: 2.5rem; 
+            margin-bottom: 15px; 
+            font-weight: 600; 
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 300;
+            max-width: 700px;
+            margin: 0 auto;
+            color: #ffffff;
+        }
+        
+        .status {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            padding: 8px 24px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            margin-top: 25px;
+            font-weight: 500;
+        }
+        
+        .content { 
+            padding: 50px 40px; 
+        }
+        
+        .section { 
+            margin-bottom: 45px; 
+        }
+        
+        h2 { 
+            color: #1e293b; 
+            font-size: 1.7rem; 
+            margin-bottom: 20px; 
+            padding-bottom: 10px; 
+            border-bottom: 2px solid #e2e8f0; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+        }
+        
+        h2::before { 
+            content: ''; 
+            display: inline-block; 
+            width: 6px; 
+            height: 24px; 
+            background: #4f46e5; 
+            border-radius: 3px; 
+        }
+        
+        p { 
+            margin-bottom: 18px; 
+            color: #475569; 
+            font-size: 1.08rem; 
+        }
+        
+        /* ========== 核心修改：可展开的功能卡片 ========== */
+        .features {
+            list-style: none;
+            display: grid;
+            gap: 18px;
+        }
+        
+        .feature-card {
+            display: block; /* 改为块级，方便点击定位 */
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden; /* 隐藏展开前溢出的详情 */
+        }
+        
+        .feature-card:target {
+            border-color: #c7d2fe;
+            box-shadow: 0 12px 28px rgba(99, 102, 241, 0.12);
+            transform: translateY(-3px);
+        }
+        
+        .feature-card-summary {
+            display: flex;
+            align-items: flex-start;
+            gap: 22px;
+            padding: 24px;
+        }
+        
+        .feature-card:hover .feature-card-summary {
+            background-color: #fafbff;
+        }
+        
+        .card-icon {
+            font-size: 1.9rem;
+            flex-shrink: 0;
+            width: 50px;
+            height: 50px;
+            background: #eef2ff;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4f46e5;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover .card-icon,
+        .feature-card:target .card-icon {
+            background: #4f46e5;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .card-title {
+            flex: 1;
+        }
+        
+        .card-title strong {
+            color: #1e293b;
+            font-size: 1.2rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .card-title p {
+            margin-top: 8px;
+            margin-bottom: 0;
+            color: #64748b;
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+        
+        /* 可展开的详细内容区域 */
+        .feature-card-details {
+            max-height: 0;
+            opacity: 0;
+            padding: 0 24px;
+            overflow: hidden;
+            background: #f8fafc;
+            border-top: 1px dashed #e2e8f0;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .feature-card:target .feature-card-details {
+            max-height: 500px; /* 设置一个足够大的值 */
+            opacity: 1;
+            padding: 24px;
+            margin-top: 0;
+        }
+        
+        .detail-content h4 {
+            color: #1e293b;
+            margin-top: 0;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .detail-content h4::before {
+            content: '▶';
+            font-size: 0.8rem;
+            color: #4f46e5;
+        }
+        
+        .detail-list {
+            padding-left: 20px;
+            margin-bottom: 15px;
+            color: #475569;
+        }
+        
+        .detail-list li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        
+        .tech-note {
+            font-size: 0.95rem;
+            color: #6366f1;
+            background: #eef2ff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border-left: 4px solid #4f46e5;
+            margin-top: 15px;
+        }
+        
+        /* ========== 修改结束 ========== */
+        
+        .demo-area { 
+            background: #f8fafc; 
+            border-radius: 12px; 
+            padding: 35px; 
+            margin-top: 30px; 
+            border: 1px solid #e2e8f0; 
+        }
+        
+        .demo-title { 
+            font-weight: 600; 
+            color: #4f46e5; 
+            margin-bottom: 20px; 
+            font-size: 1.1rem; 
+        }
+        
+        .preview-box { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 25px; 
+            align-items: center; 
+        }
+        
+        .preview-text { 
+            flex: 1; 
+            min-width: 250px; 
+        }
+        
+        .preview-chart { 
+            flex: 1; 
+            min-width: 250px; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08); 
+            border: 1px solid #e2e8f0; 
+        }
+        
+        .verification { 
+            background: linear-gradient(to right, #f0f9ff, #fef2f2); 
+            border-left: 5px solid #3b82f6; 
+            padding: 25px; 
+            border-radius: 0 10px 10px 0; 
+            margin-top: 40px; 
+            animation: fadeInUp 0.8s ease-out; 
+        }
+        
+        .verification h3 { 
+            color: #1e293b; 
+            margin-bottom: 15px; 
+        }
+        
+        .verification p { 
+            margin-bottom: 8px; 
+            color: #475569; 
+            font-size: 1rem; 
+        }
+        
+        .verification strong { 
+            color: #1e40af; 
+        }
+        
+        footer { 
+            text-align: center; 
+            padding: 30px; 
+            background: #f1f5f9; 
+            color: #64748b; 
+            font-size: 0.95rem; 
+            border-top: 1px solid #e2e8f0; 
+        }
+        
+        a { 
+            color: #4f46e5; 
+            text-decoration: none; 
+            font-weight: 500; 
+        }
+        
+        a:hover { 
+            text-decoration: underline; 
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .smooth-nav { padding: 10px 20px; gap: 15px; top: 10px; }
+            .smooth-nav a { font-size: 0.85rem; }
+            .container { margin-top: 70px; }
+            .feature-card-summary { flex-direction: column; gap: 15px; }
+            .card-icon { align-self: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="smooth-nav">
+        <a href="#about">关于工具</a>
+        <a href="#features">主要功能</a>
+        <a href="#preview">功能预览</a>
+        <a href="#verification">验证信息</a>
+    </nav>
+    
+    <div class="container">
+        <header>
+            <span class="header-icon">📁</span>
+            <h1>工业遗产资料收藏夹</h1>
+            <p class="tagline">一个用于个人收藏、整理与预览工业遗产图文资料的在线工具</p>
+            <div class="status">个人学习与测试工具</div>
+        </header>
+
+        <div class="content">
+            <section class="section" id="about">
+                <h2>关于此工具</h2>
+                <p>这是一个为了方便我个人收藏和管理"工业遗产馆创意园"相关兴趣资料而创建的在线工具。我将浏览中遇到的有价值的文字介绍、历史故事和珍贵图片，通过这个工具进行规整，方便日后查找和回顾。</p>
+                <p>工具目前处于个人学习与功能验证阶段，主要用于体验完整的技术流程。</p>
+            </section>
+
+            <section class="section" id="features">
+                <h2>主要功能</h2>
+                <ul class="features">
+                    <!-- 功能卡片 1 -->
+                    <li class="feature-card" id="feature-edit">
+                        <div class="feature-card-summary">
+                            <div class="card-icon">✍️</div>
+                            <div class="card-title">
+                                <strong>资料摘录与编辑</strong>
+                                <p>提供简洁的编辑器，用于整理我收集到的工业遗产介绍、历史故事与相关图片。</p>
+                            </div>
+                        </div>
+                        <div class="feature-card-details">
+                            <div class="detail-content">
+                                <h4>功能特点</h4>
+                                <ul class="detail-list">
+                                    <li><strong>富文本编辑</strong>：支持加粗、斜体、列表等基础格式，使笔记清晰有条理。</li>
+                                    <li><strong>多媒体插入</strong>：可直接嵌入图片、链接，甚至关联的文献PDF预览。</li>
+                                    <li><strong>自动保存与版本</strong>：实时保存工作，并可回溯查看历史编辑版本。</li>
+                                </ul>
+                                <h4>典型使用场景</h4>
+                                <ul class="detail-list">
+                                    <li>阅读一篇关于“郑州油化厂”的报道后，快速摘录核心史实并配上现场图片。</li>
+                                    <li>整理不同来源的工业遗产地址信息，合并成一份清晰的清单。</li>
+                                </ul>
+                                <div class="tech-note">
+                                    💡 技术实现：基于浏览器ContentEditable API开发，数据本地存储优先，确保个人隐私。
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    
+                    <!-- 功能卡片 2 -->
+                    <li class="feature-card" id="feature-manage">
+                        <div class="feature-card-summary">
+                            <div class="card-icon">🏷️</div>
+                            <div class="card-title">
+                                <strong>个人资料库管理</strong>
+                                <p>可对我自己创建的条目进行自定义分类和打标签，形成结构化的个人知识库。</p>
+                            </div>
+                        </div>
+                        <div class="feature-card-details">
+                            <div class="detail-content">
+                                <h4>管理维度</h4>
+                                <ul class="detail-list">
+                                    <li><strong>多级分类</strong>：可按“地域（如郑州）”、“类型（如厂房、机械）”、“年代”创建文件夹。</li>
+                                    <li><strong>灵活标签</strong>：为条目添加“待核实”、“重要”、“已归档”等状态标签。</li>
+                                    <li><strong>高级检索</strong>：通过关键词、标签、时间范围组合查找，快速定位资料。</li>
+                                </ul>
+                                <h4>知识沉淀</h4>
+                                <ul class="detail-list">
+                                    <li>随着条目增加，系统可自动生成“标签云”，直观反映你的兴趣焦点。</li>
+                                    <li>所有资料可导出为结构化文件（如JSON），便于备份或用于其他分析工具。</li>
+                                </ul>
+                                <div class="tech-note">
+                                    💡 设计理念：模拟个人大脑的联想记忆结构，帮助无序信息形成有价值的网络。
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    
+                    <!-- 功能卡片 3 -->
+                    <li class="feature-card" id="feature-preview">
+                        <div class="feature-card-summary">
+                            <div class="card-icon">👁️</div>
+                            <div class="card-title">
+                                <strong>排版预览</strong>
+                                <p>编辑后可以即时查看内容的最终排版效果，方便进行调整和优化。</p>
+                            </div>
+                        </div>
+                        <div class="feature-card-details">
+                            <div class="detail-content">
+                                <h4>预览模式</h4>
+                                <ul class="detail-list">
+                                    <li><strong>实时双栏预览</strong>：编辑区与预览区并排显示，所见即所得。</li>
+                                    <li><strong>多设备模拟</strong>：一键切换预览视图至手机、平板等不同屏幕尺寸。</li>
+                                    <li><strong>打印优化视图</strong>：专为打印或生成PDF设计的洁净排版模式。</li>
+                                </ul>
+                                <h4>为什么需要预览？</h4>
+                                <ul class="detail-list">
+                                    <li>确保长篇历史叙述在不同设备上都有良好的阅读体验。</li>
+                                    <li>在分享给朋友或导师前，检查图片与文字的布局是否协调美观。</li>
+                                    <li>作为个人作品集的一部分时，呈现专业的视觉效果。</li>
+                                </ul>
+                                <div class="tech-note">
+                                    💡 用户体验：预览是创作的最后一环，好的预览功能让整理资料的成就感倍增。
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                <p style="margin-top: 15px; font-size: 0.95rem; color: #94a3b8; text-align: center;">
+                    👆 点击任一功能模块，查看更详细的设计思路与使用介绍。
+                </p>
+            </section>
+
+            <section class="section" id="preview">
+                <h2>功能预览</h2>
+                <p>下方简单模拟了资料管理后台的样式，展示条目列表与简单的统计视图。</p>
+                <div class="demo-area">
+                    <div class="demo-title">📊 个人收藏条目概览</div>
+                    <div class="preview-box">
+                        <div class="preview-text">
+                            <p><strong>最近添加的条目：</strong></p>
+                            <ul style="padding-left: 20px; color: #475569;">
+                                <li style="margin-bottom: 8px;">郑州油化厂老厂房历史沿革</li>
+                                <li style="margin-bottom: 8px;">工业机械素描图集（1980s）</li>
+                                <li>关于"工业遗产活化"的访谈摘录</li>
+                            </ul>
+                        </div>
+                        <div class="preview-chart">
+                            <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="20" y="40" width="40" height="60" fill="#4f46e5" rx="4"/>
+                                <text x="40" y="105" text-anchor="middle" fill="#64748b" font-size="10">文本</text>
+                                <rect x="80" y="20" width="40" height="80" fill="#8b5cf6" rx="4"/>
+                                <text x="100" y="105" text-anchor="middle" fill="#64748b" font-size="10">图片</text>
+                                <rect x="140" y="60" width="40" height="40" fill="#a78bfa" rx="4"/>
+                                <text x="160" y="105" text-anchor="middle" fill="#64748b" font-size="10">链接</text>
+                                <text x="100" y="15" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="bold">个人收藏分类示意</text>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="verification" id="verification">
+                <h3>ⓘ 微博开放平台应用验证信息</h3>
+                <p><strong>应用名称：</strong>工业遗产资料收藏夹</p>
+                <p><strong>App Key：</strong>3********1</p>
+                <p><strong>应用类型：</strong>网页应用 (个人工具)</p>
+                <p><strong>此页面地址：</strong>https://chen-huang09.github.io</p>
+                <p style="margin-top: 10px; font-size: 0.95rem; color: #6366f1;">此页面为上述微博应用的官方功能演示页，用于审核验证。该工具为个人学习与兴趣管理所用。</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2024 个人兴趣项目。此页面为功能演示之用。</p>
+            <p style="margin-top: 5px; font-size: 0.9rem;">更新于 2024年5月 | 基于微博开放平台开发</p>
+        </footer>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. 只让导航栏的链接执行平滑滚动，并阻止其默认行为
+        document.querySelectorAll('.smooth-nav a').forEach(navLink => {
+            navLink.addEventListener('click', function (e) {
+                e.preventDefault(); // 阻止导航链接的默认跳转
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 30,
+                        behavior: 'smooth'
+                    });
+                    // 可选：更新URL，但不影响卡片展开（因为卡片不是用URL驱动的）
+                    // history.pushState(null, null, targetId);
+                }
+            });
+        });
+
+        // 2. 为功能卡片的点击添加核心逻辑：手动切换URL片段标识符
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('click', function (e) {
+                // 阻止事件冒泡，避免被其他处理程序干扰
+                e.stopPropagation();
+                
+                const cardId = this.id; // 例如 ‘feature-edit‘
+                const currentHash = window.location.hash.substring(1); // 当前展开的卡片ID
+                
+                // 如果点击的是已展开的卡片，则关闭它（清空hash）
+                if (currentHash === cardId) {
+                    history.pushState(null, null, ' '); // 设置hash为空
+                } else {
+                    // 否则，将hash设置为当前卡片的ID，触发CSS的 :target 样式
+                    history.pushState(null, null, `#${cardId}`);
+                }
+                
+                // 可选的轻微视觉反馈
+                this.style.transform = 'translateY(-3px)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+            });
+        });
+
+        // 3. 页面加载时，如果URL中已有hash，则滚动到对应位置
+        if (window.location.hash) {
+            const targetElement = document.querySelector(window.location.hash);
+            if (targetElement) {
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 30,
+                        behavior: 'smooth'
+                    });
+                }, 100);
+            }
+        }
+    });
+</script>
+</body>
+</html>
